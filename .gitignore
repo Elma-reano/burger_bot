@@ -1,3 +1,9 @@
 
 # venv
 venv*
+
+# vscode settings
+.vscode/
+
+# any .DS_Store file on macOS
+.DS_Store
