@@ -7,3 +7,6 @@ venv*
 
 # any .DS_Store file on macOS
 .DS_Store
+
+# Sample files are just for myself
+*/sample_files/*
