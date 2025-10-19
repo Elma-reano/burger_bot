@@ -15,3 +15,6 @@ venv*
 
 # pycache
 *__pycache__*/
+
+# emoji_catalogue
+config/emoji_catalogue.json

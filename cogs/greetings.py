@@ -1,19 +1,25 @@
 import discord
 from discord.ext import commands
 
+from emojis import get_app_emoji
+
 class Greetings(commands.Cog): # create a class for our cog that inherits from commands.Cog
     # this class is used to create a cog, which is a module that can be added to the bot
 
     def __init__(self, bot): # this is a special method that is called when the cog is loaded
         self.bot = bot
 
-    @commands.command() # creates a prefixed command
+    @commands.command(name="hello") # creates a prefixed command
     async def hello(self, ctx): # all methods now must have both self and ctx parameters
         await ctx.send(f'Hello, {ctx.author.name}!')
 
     @discord.slash_command() # we can also add application commands
     async def goodbye(self, ctx):
         await ctx.respond(f'Goodbye, {ctx.author.name}!')
+
+    @commands.command(name="burger")
+    async def burger(self, ctx):
+        await ctx.send(get_app_emoji("burger"))
 
     @discord.user_command()
     async def greet(self, ctx, member: discord.Member):
