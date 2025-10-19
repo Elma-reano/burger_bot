@@ -1,6 +1,8 @@
 
 # venv
 venv*
+# env file
+.env
 
 # vscode settings
 .vscode/
@@ -10,3 +12,6 @@ venv*
 
 # Sample files are just for myself
 */sample_files/*
+
+# pycache
+*__pycache__*/

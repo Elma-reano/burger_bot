@@ -8,3 +8,4 @@
 
 $$\text{Burger Bot}$$
 
+TODO: Hyrule Radio
