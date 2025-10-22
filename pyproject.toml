@@ -1,0 +1,11 @@
+[project]
+name = "burger-bot"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "aiohttp>=3.13.1",
+    "py-cord>=2.6.1",
+    "sounddevice>=0.5.3",
+]
