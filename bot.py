@@ -6,17 +6,18 @@ from discord.ext.commands import Bot
 dotenv.load_dotenv()
 token = str(os.getenv("TOKEN"))
 
+
 EXTENSIONS = [
     'cogs.greetings',
     'cogs.math',
-    'cogs.questions'
+    'cogs.questions',
+    'cogs.animals'
 ]
 
 intents = discord.Intents.default()
 intents.members = True
 intents.message_content = True
 
-# bot = discord.Bot()
 bot = Bot(command_prefix="!",
           intents= intents
           )
@@ -29,10 +30,6 @@ async def on_ready():
 async def ping(ctx: discord.ApplicationContext):
     await ctx.respond("Pong!")
     print(f"Pinged {ctx.author.nick}")
-
-# @bot.slash_command(name="hello", description="Say hello to the bot")
-# async def hello(ctx: discord.ApplicationContext):
-#     await ctx.respond(f"Hello, {ctx.author.name}!")
 
 @bot.slash_command(name="gamble", description="Let's go gambling!")
 async def gamble(ctx: discord.ApplicationContext, amount: int):
