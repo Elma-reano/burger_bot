@@ -11,7 +11,8 @@ EXTENSIONS = [
     'cogs.greetings',
     'cogs.math',
     'cogs.questions',
-    'cogs.animals'
+    'cogs.animals',
+    'cogs.voicechat',
 ]
 
 intents = discord.Intents.default()
