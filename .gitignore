@@ -6,8 +6,9 @@ venv*
 # env file
 .env
 
-# vscode settings
+# vscode stuff
 .vscode/
+*tempCodeRunnerFile.py
 
 # any .DS_Store file on macOS
 .DS_Store
