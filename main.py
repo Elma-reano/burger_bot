@@ -1,10 +1,15 @@
 import discord
 import os
-import dotenv
 from discord.ext.commands import Bot
 
+import logging
+logging.basicConfig(level=logging.INFO)
+
+import dotenv
 dotenv.load_dotenv()
 token = str(os.getenv("TOKEN"))
+
+
 
 
 EXTENSIONS = [

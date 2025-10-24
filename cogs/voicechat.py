@@ -1,110 +1,102 @@
 import discord
+from discord import FFmpegPCMAudio, PCMVolumeTransformer
 from discord.ext import commands
+
+import asyncio
+
 
 class Voicechat(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
 
-    async def __join(self, ctx: discord.ApplicationContext) -> tuple[bool, str]:
-        """Make the bot join the voice channel of the user.
+    @commands.command()
+    async def test1(self, ctx: commands.Context):
+        # Check if the bot is connected to a voice channel
+        if ctx.voice_client is None:
+            await ctx.send("Bot is not connected to a voice channel.")
+        else:
+            await ctx.send("Bot is connected to a voice channel.")
 
-        Args:
-            ctx (discord.ApplicationContext): The context of the command.
+    @commands.command()
+    async def test2(self, ctx: commands.Context):
+        # Check if the author is connected to a voice channel
+        if ctx.author.voice is None:
+            await ctx.send("You are not connected to a voice channel.")
+        else:
+            await ctx.send("You are connected to a voice channel.")
 
-        Returns:
-            tuple[bool, str]: A tuple containing a boolean indicating success, and a message.
-            If the boolean is True, the bot successfully joined the voice channel.
-            If the boolean is None, the user is not in a voice channel.
-            If the boolean is False, an error not concerning the user occurred.
+    # async def __join(self, ctx: commands.Context | discord.ApplicationContext, channel: discord.VoiceChannel | None = None) -> tuple[int, str]:
+    #     if channel is None:
+    #         if ctx.author.voice:
+    #             channel = ctx.author.voice.channel
+    #         else:
+    #             await ctx.send("You are not connected to a voice channel.")
+    #             raise commands.CommandError("Author not connected to a voice channel.")
 
-            The message contains information about the result.
-        """
-        try:
-            if ctx.author.voice is None:
-                return None, "You are not connected to a voice channel."
-            voice_channel = ctx.author.voice.channel
-            
-            if ctx.guild.voice_client is not None:
-                ctx.guild.voice_client.move_to(voice_channel)
+    #     if ctx.voice_client is not None:
+    #         return await ctx.voice_client.move_to(channel)
+
+    #     await channel.connect()
+
+    @commands.command()
+    async def join(self, ctx: commands.Context, *, channel: discord.VoiceChannel | None = None):
+        """Joins a voice channel"""
+
+        if channel is None:
+            if ctx.author.voice:
+                channel = ctx.author.voice.channel
             else:
-                await voice_channel.connect()
+                await ctx.send("You are not connected to a voice channel.")
+                return
 
-            return True, f"Joined {voice_channel.name}!"
-        except Exception as e:
-            print("Error:", e)
-            return False, "An error occurred :("
-    
-    async def __disconnect(self, ctx: discord.ApplicationContext) -> tuple[bool, str]:
-        """Make the bot leave the voice channel.
+        if ctx.voice_client is not None:
+            return await ctx.voice_client.move_to(channel)
 
-        Args:
-            ctx (discord.ApplicationContext): The context of the command.
-
-        Returns:
-            tuple[bool, str]: A tuple containing a boolean indicating success, and a message.
-            If the boolean is True, the bot successfully disconnected from the voice channel.
-            If the boolean is None, the bot was not connected to any voice channel.
-            If the boolean is False, an error not concerning the user occurred.
-            The message contains information about the result.
-        """
-        try:
-            if ctx.guild.voice_client is None:
-                return None, "I am not connected to any voice channel tho."
-            
-            await ctx.guild.voice_client.disconnect()
-            return True, "Disconnected from the voice channel!"
-        except Exception as e:
-            print("Error:", e)
-            return False, "An error occurred :("
+        await channel.connect()
 
 
-    @discord.slash_command(name="join", description="Make the bot join your voice channel")
-    async def join(self, ctx: discord.ApplicationContext):
-        # if ctx.author.voice is None:
-        #     await ctx.respond("You are not connected to a voice channel.", ephemeral=True)
-        #     return
-
-        # voice_channel = ctx.author.voice.channel
-
-        # if ctx.guild.voice_client is not None:
-        #     await ctx.guild.voice_client.move_to(voice_channel)
-        # else:
-        #     await voice_channel.connect()
-
-        # await ctx.respond(f"Joined {voice_channel.name}!")
-
-        success, message = await self.__join(ctx)
-        if success:
-            await ctx.respond(message)
-        else:
-            await ctx.respond(message, ephemeral=True)
-
-    @commands.command(name="join", help="Make the bot join your voice channel")
-    async def join_command(self, ctx: discord.ApplicationContext):
-        # await self.join(ctx)
-        _, message = await self.__join(ctx)
-        await ctx.send(message)
-    
-    @discord.slash_command(name="disconnect", description="Make the bot leave the voice channel")
-    async def disconnect(self, ctx: discord.ApplicationContext):
-        # if ctx.guild.voice_client is None:
-        #     await ctx.respond("I am not connected to any voice channel tho.", ephemeral=True)
-        #     return
-        
-        # await ctx.guild.voice_client.disconnect()
-        # await ctx.respond("Disconnected from the voice channel!")
-        success, message = await self.__disconnect(ctx)
-        if success:
-            await ctx.respond(message)
-        else:
-            await ctx.respond(message, ephemeral=True)
+    @commands.command()
+    async def stop(self, ctx: commands.Context):
+        """Stops and disconnects the bot from voice"""
+        await ctx.voice_client.disconnect(force=True)
 
 
-    @commands.command(name="disconnect", help="Make the bot leave the voice channel")
-    async def disconnect_command(self, ctx: discord.ApplicationContext):
-        _, message = await self.__disconnect(ctx)
-        await ctx.send(message)
+    @commands.command(name="testaudio", help="Test join and play test audio")
+    async def test_audio(self, ctx, path: str = None):
+
+        if path is None:
+            path = "tests/sample_audios/test_2.mp3"
+
+        await ctx.send(f"Voice connected to: {ctx.voice_client.channel}")
+        voice = ctx.voice_client
+
+        if voice is None:
+            await ctx.send("El bot no está conectado a un canal de voz.")
+
+        source = PCMVolumeTransformer(
+            FFmpegPCMAudio(path,
+                           options="-vn -f s16le",
+                        #    options='-vn -ar 48000 -ac 2 -f s16le'
+                           )
+        )
+
+        voice.play(
+            source,
+            after=lambda e: print('Player error: %s' % e) if e else None
+        )
+        await ctx.send("Playing test audio...")
+
+    @test_audio.before_invoke
+    async def ensure_voice(self, ctx: commands.Context):
+        if ctx.voice_client is None:
+            if ctx.author.voice:
+                await ctx.author.voice.channel.connect()
+            else:
+                await ctx.send("You are not connected to a voice channel.")
+                raise commands.CommandError("Author not connected to a voice channel.")
+        elif ctx.voice_client.is_playing():
+            ctx.voice_client.stop()
 
 def setup(bot):
     print("Setting up Voicechat cog...")
