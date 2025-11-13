@@ -23,7 +23,7 @@ class Questions(commands.Cog):
             "Huh, yeah.",
             "Good question",
             "What kind of question is that?",
-            "What are you impying?",
+            "What are you implying?",
             get_app_emoji("eyebrow"),
             get_server_emoji(ctx),
             f"{random_person_from_server.mention} knows the answer",
