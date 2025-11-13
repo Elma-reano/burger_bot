@@ -4,7 +4,6 @@ from discord.ext import commands
 
 import asyncio
 
-
 class Voicechat(commands.Cog):
 
     def __init__(self, bot):
@@ -43,12 +42,12 @@ class Voicechat(commands.Cog):
     async def join(self, ctx: commands.Context, *, channel: discord.VoiceChannel | None = None):
         """Joins a voice channel"""
 
+        if ctx.author.voice is None:
+            await ctx.send("You are not connected to a voice channel.")
+            raise commands.CommandError("Author not connected to a voice channel.")
+
         if channel is None:
-            if ctx.author.voice:
-                channel = ctx.author.voice.channel
-            else:
-                await ctx.send("You are not connected to a voice channel.")
-                return
+            channel = ctx.author.voice.channel
 
         if ctx.voice_client is not None:
             return await ctx.voice_client.move_to(channel)
@@ -63,16 +62,16 @@ class Voicechat(commands.Cog):
 
 
     @commands.command(name="testaudio", help="Test join and play test audio")
-    async def test_audio(self, ctx, path: str = None):
+    async def test_audio(self, ctx, path: str | None = None):
 
         if path is None:
-            path = "tests/sample_audios/test_2.mp3"
+            path = "tests/sample_audios/test_1.mp3"
 
         await ctx.send(f"Voice connected to: {ctx.voice_client.channel}")
         voice = ctx.voice_client
 
         if voice is None:
-            await ctx.send("El bot no está conectado a un canal de voz.")
+            await ctx.send("Not connected to a voice channel")
 
         source = PCMVolumeTransformer(
             FFmpegPCMAudio(path,
@@ -89,13 +88,8 @@ class Voicechat(commands.Cog):
 
     @test_audio.before_invoke
     async def ensure_voice(self, ctx: commands.Context):
-        if ctx.voice_client is None:
-            if ctx.author.voice:
-                await ctx.author.voice.channel.connect()
-            else:
-                await ctx.send("You are not connected to a voice channel.")
-                raise commands.CommandError("Author not connected to a voice channel.")
-        elif ctx.voice_client.is_playing():
+        await self.join(self, ctx)
+        if ctx.voice_client.is_playing():
             ctx.voice_client.stop()
 
 def setup(bot):
