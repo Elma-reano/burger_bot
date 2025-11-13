@@ -25,5 +25,10 @@ sudo dnf update
 sudo dnf install opus
 ```
 
+## Files to create if cloned from git
+.env
+config/emoji_catalogue.json
+
+
 ## TODOs
 - Hyrule Radio
