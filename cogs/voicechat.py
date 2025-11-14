@@ -13,7 +13,10 @@ class VoicechatBase:
     async def join(self, ctx: commands.Context, *, channel: discord.VoiceChannel | None = None):
         """Joins a voice channel"""
         if ctx.author.voice is None:
-            await ctx.send("You are not connected to a voice channel.")
+            if isinstance(ctx, discord.ApplicationContext):
+                await ctx.respond("You are not connected to a voice channel.")
+            elif isinstance(ctx, commands.Context):
+                await ctx.send("You are not connected to a voice channel.")
             raise commands.CommandError("Author not connected to a voice channel.")
 
         if channel is None:
@@ -27,6 +30,15 @@ class VoicechatBase:
     @staticmethod
     def voice_required(func):
         async def wrapper(self, ctx: commands.Context, *args, **kwargs):
+            await self.join(ctx)
+            if ctx.voice_client.is_playing():
+                ctx.voice_client.stop()
+            return await func(self, ctx, *args, **kwargs)
+        return wrapper
+    
+    @staticmethod
+    def slash_voice_required(func):
+        async def wrapper(self, ctx: discord.ApplicationContext, *args, **kwargs):
             await self.join(ctx)
             if ctx.voice_client.is_playing():
                 ctx.voice_client.stop()
