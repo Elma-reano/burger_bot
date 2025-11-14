@@ -45,11 +45,11 @@ class VoicechatControls(VoicechatBase, commands.Cog):
 
     @commands.command(name="stop", help="Make the bot leave the voice channel")
     async def stop(self, ctx: commands.Context):
-        await self.disconnect(ctx)
+        await ctx.voice_client.disconnect(force=True) if ctx.voice_client else None
         await ctx.send("Disconnected from voice channel")
 
     @commands.command(name="disconnect", help="Make the bot leave the voice channel")
-    async def disconnect_command(self, ctx: commands.Context):
+    async def disconnect(self, ctx: commands.Context):
         await self.stop(ctx)
 
 
