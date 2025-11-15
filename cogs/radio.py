@@ -65,6 +65,7 @@ class Radio(commands.Cog, VoicechatBase):
         ctx.respond("WIP :)")
         raise NotImplementedError("Slash command for radio not implemented yet.")
 
+    @radio.before_invoke
     @radio_slash.before_invoke
     async def ensure_voice(self, ctx: discord.ApplicationContext | commands.Context):
         await self._ensure_voice(ctx)
