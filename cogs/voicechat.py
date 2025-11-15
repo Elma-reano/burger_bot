@@ -10,7 +10,7 @@ class VoicechatBase:
 
     # async def __join(self, ctx: commands.Context | discord.ApplicationContext, channel: discord.VoiceChannel | None = None) -> tuple[int, str]:
 
-    async def join(self, ctx: commands.Context, *, channel: discord.VoiceChannel | None = None):
+    async def _join(self, ctx: commands.Context | discord.ApplicationContext, *, channel: discord.VoiceChannel | None = None):
         """Joins a voice channel"""
         if ctx.author.voice is None:
             if isinstance(ctx, discord.ApplicationContext):
@@ -27,23 +27,10 @@ class VoicechatBase:
         elif channel != ctx.voice_client.channel:
             await ctx.voice_client.move_to(channel)
 
-    @staticmethod
-    def voice_required(func):
-        async def wrapper(self, ctx: commands.Context, *args, **kwargs):
-            await self.join(ctx)
-            if ctx.voice_client.is_playing():
-                ctx.voice_client.stop()
-            return await func(self, ctx, *args, **kwargs)
-        return wrapper
-    
-    @staticmethod
-    def slash_voice_required(func):
-        async def wrapper(self, ctx: discord.ApplicationContext, *args, **kwargs):
-            await self.join(ctx)
-            if ctx.voice_client.is_playing():
-                ctx.voice_client.stop()
-            return await func(self, ctx, *args, **kwargs)
-        return wrapper
+    async def _ensure_voice(self, ctx: commands.Context | discord.ApplicationContext):
+        await self._join(ctx)
+        if ctx.voice_client.is_playing():
+            ctx.voice_client.stop()
     
 class VoicechatControls(VoicechatBase, commands.Cog):
 
@@ -51,8 +38,8 @@ class VoicechatControls(VoicechatBase, commands.Cog):
         self.bot = bot
 
     @commands.command(name="join", help="Make the bot join your voice channel")
-    async def join_command(self, ctx: commands.Context, *, channel: discord.VoiceChannel | None = None):
-        await self.join(ctx, channel=channel)
+    async def join(self, ctx: commands.Context, *, channel: discord.VoiceChannel | None = None):
+        await self._join(ctx, channel=channel)
         await ctx.send(f"Joined {ctx.voice_client.channel}")
 
     @commands.command(name="stop", help="Make the bot leave the voice channel")

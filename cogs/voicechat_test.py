@@ -1,5 +1,6 @@
 from cogs.voicechat import VoicechatBase
 
+import discord
 from discord import FFmpegPCMAudio, PCMVolumeTransformer
 from discord.ext import commands
 
@@ -9,7 +10,7 @@ class VoicechatTest(commands.Cog, VoicechatBase):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command()
+    @commands.command(name="test1", help="Test if bot is connected to a voice channel")
     async def test1(self, ctx: commands.Context):
         # Check if the bot is connected to a voice channel
         if ctx.voice_client is None:
@@ -17,7 +18,7 @@ class VoicechatTest(commands.Cog, VoicechatBase):
         else:
             await ctx.send("Bot is connected to a voice channel.")
 
-    @commands.command()
+    @commands.command(name="test2", help="Test if author is connected to a voice channel")
     async def test2(self, ctx: commands.Context):
         # Check if the author is connected to a voice channel
         if ctx.author.voice is None:
@@ -25,8 +26,12 @@ class VoicechatTest(commands.Cog, VoicechatBase):
         else:
             await ctx.send("You are connected to a voice channel.")
 
+    @commands.command(name="test3", help="Test command that requires author to be in a voice channel")
+    async def test3(self, ctx: commands.Context):
+        await ctx.send("You must be in a voice channel to run this command.")
+
     @commands.command(name="testaudio", help="Test join and play test audio")
-    @VoicechatBase.voice_required
+    # @VoicechatBase.voice_required
     async def test_audio(self, ctx, path: str | None = None):
 
         if path is None:
@@ -50,6 +55,11 @@ class VoicechatTest(commands.Cog, VoicechatBase):
             after=lambda e: print('Player error: %s' % e) if e else None
         )
         await ctx.send("Playing test audio...")
+
+    @test_audio.before_invoke
+    @test3.before_invoke
+    async def ensure_voice(self, ctx: commands.Context | discord.ApplicationContext):
+        await self._ensure_voice(ctx)
 
 def setup(bot):
     print("Setting up VoicechatTest cog...")
