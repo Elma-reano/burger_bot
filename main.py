@@ -10,14 +10,14 @@ dotenv.load_dotenv()
 token = str(os.getenv("TOKEN"))
 
 
-
-
 EXTENSIONS = [
     'cogs.greetings',
     'cogs.math',
     'cogs.questions',
     'cogs.animals',
     'cogs.voicechat',
+    'cogs.voicechat_test',
+    'cogs.radio',
 ]
 
 intents = discord.Intents.default()

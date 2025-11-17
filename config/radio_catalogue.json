@@ -1,0 +1,23 @@
+[
+    {
+        "id": "radio_hyrule",
+        "name": "Radio Hyrule",
+        "url": "http://listen.radiohyrule.com:8000/listen",
+        "genre": "Video Game Music",
+        "Description": "Radio Hyrule streams music from The Legend of Zelda series 24/7."
+    },
+    {
+        "id": "somafm_jollyolsoul",
+        "name": "SomaFM - Jolly Ol' Soul",
+        "url": "https://ice6.somafm.com/jollysoul-128-aac",
+        "genre": "Christmas/Soul",
+        "Description": "Christmas Soul, Baby."
+    },
+    {
+        "id": "somafm_sonicuniverse",
+        "name": "SomaFM - Sonic Universe",
+        "url" : "http://ice6.somafm.com/sonicuniverse-256-mp3",
+        "genre": "Eclectic Jazz",
+        "Description": "A wide variety of sounds from across the musical spectrum."
+    }
+]
