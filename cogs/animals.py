@@ -39,6 +39,18 @@ class Animals(commands.Cog):
                 data = await response.json()
                 await ctx.send(data['url'])
 
+    @discord.slash_command(name='choose_animal', help='Choose an animal to get an image from (cat, dog, duck).')
+    @discord.option("animal", str, description= "Choose an animal", choices=["cat", "dog", "duck"])
+    async def choose_animal(self, ctx, animal: str):
+        if animal == "cat":
+            await self.cat(ctx)
+        elif animal == "dog":
+            await self.dog(ctx)
+        elif animal == "duck":
+            await self.duck(ctx)
+        else:
+            await ctx.send("Unknown animal!")
+
 def setup(bot):
     print("Setting up Animals cog...")
     bot.add_cog(Animals(bot))
