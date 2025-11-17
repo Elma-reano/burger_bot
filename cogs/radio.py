@@ -12,28 +12,43 @@ with open(RADIO_CATALOGUE_PATH, 'r') as f:
 
 catalogue_options = [station['name'] for station in catalogue]
 
+# TODO Multiple urls per station (for fallback)
+
 class Radio(commands.Cog, VoicechatBase):
 
     def __init__(self, bot):
         self.bot = bot
 
-    def __get_station_url(self, station_name: str) -> str | None:
-        for station in catalogue:
-            if station['name'] == station_name:
-                return station['url']
+    def __get_station_url(self, station_name: str | None = None, station_id: str | None = None) -> str | None:
+        assert station_name is not None or station_id is not None, "Either station_name or station_id must be provided."
+        if station_id is not None:
+            for station in catalogue:
+                if station['id'] == station_id:
+                    return station['url']
+            return None
+        elif station_name is not None:
+            for station in catalogue:
+                if station['name'] == station_name:
+                    return station['url']
         return None
     
-    def __get_radio_list(self, print_urls: bool = False) -> str:
+    def __get_radio_list(self) -> str:
         message = "## Available Radio Stations:\n"
         for station in catalogue:
-            message += f"###{station['name']}:\n- {station['genre']}\n- {station['Description']}\n"
-            if print_urls:
-                message += f"- URL: {station['url']}\n"
+            message += f"### {station['name']}:\n- ID: {station['id']}\n- {station['genre']}\n- {station['Description']}\n"
+        message += "> The list of radios of the slash command may take some time to update after adding new stations.\n"
         return message
+    
+    @commands.command(name="reset_radio_catalogue", help="Reload the radio catalogue from file", admin_only=True, hidden=True)
+    async def reset_radio_catalogue(self, ctx: commands.Context):
+        global catalogue
+        with open(RADIO_CATALOGUE_PATH, 'r') as f:
+            catalogue = json.load(f)
+        await ctx.send("Radio catalogue reloaded.")
 
     @commands.command(name="list_radios", help="List available radio stations")
     async def list_radios(self, ctx: commands.Context):
-        await ctx.send(self.__get_radio_list(print_urls=True))
+        await ctx.send(self.__get_radio_list())
 
     @discord.slash_command(name="list_radios", description="List available radio stations")
     async def slash_list_radios(self, ctx):
@@ -56,9 +71,13 @@ class Radio(commands.Cog, VoicechatBase):
         except Exception as e:
             return (False, f"Error playing radio stream :(", str(e))
 
-    @commands.command(name="radio", help="Join voice channel and play radio stream")
-    async def radio(self, ctx: commands.Context, url: str):
-        await ctx.send(f"Connecting to radio stream: {url}")
+    @commands.command(name="radio", help="Join voice channel and play radio stream. The station id must be provided.")
+    async def radio(self, ctx: commands.Context, station_id: str):
+        station_url = self.__get_station_url(station_id=station_id)
+        if station_url is None:
+            await ctx.send(f"Station '{station_id}' not found.")
+            return
+        await ctx.send(f"Connecting to radio stream: {station_id}")
         # voice = ctx.voice_client
 
         # source = discord.FFmpegPCMAudio(url)
@@ -66,7 +85,7 @@ class Radio(commands.Cog, VoicechatBase):
         #     source,
         #     after=lambda e: print('Player error: %s' % e) if e else None
         # )
-        success, message, error = await self.__play_radio(ctx, url)
+        success, message, error = await self.__play_radio(ctx, station_url)
         if success:
             await ctx.send(message)
         else:
@@ -75,10 +94,10 @@ class Radio(commands.Cog, VoicechatBase):
 
     @discord.slash_command(name="radio", description="Join voice channel and play radio stream")
     @discord.option("station", type=str, description="Select a radio station", choices=catalogue_options, required=True)
-    async def radio_slash(self, ctx: discord.ApplicationContext, station: str):
-        station_url = self.__get_station_url(station)
+    async def radio_slash(self, ctx: discord.ApplicationContext, station_name: str):
+        station_url = self.__get_station_url(station_name=station_name)
         if station_url is None:
-            await ctx.respond(f"Station '{station}' not found.")
+            await ctx.respond(f"Station '{station_name}' not found.")
             return
         # voice = ctx.voice_client
         # source = discord.FFmpegAudio(station_url)
