@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 
-from emojis import get_app_emoji
+from utils.emojis import get_app_emoji
 
 class Greetings(commands.Cog): # create a class for our cog that inherits from commands.Cog
     # this class is used to create a cog, which is a module that can be added to the bot

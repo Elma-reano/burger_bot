@@ -3,7 +3,7 @@ from discord.ext import commands
 
 from random import choice
 
-from emojis import get_app_emoji, get_server_emoji
+from utils.emojis import get_app_emoji, get_server_emoji
 
 class Questions(commands.Cog):
 

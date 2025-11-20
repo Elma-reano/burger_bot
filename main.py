@@ -18,6 +18,7 @@ EXTENSIONS = [
     'cogs.voicechat',
     'cogs.voicechat_test',
     'cogs.radio',
+    'cogs.funny',
 ]
 
 intents = discord.Intents.default()
